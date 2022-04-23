@@ -1,31 +1,27 @@
 version: '3.7'
 services:
-  mariadb:
-    image: docker.io/bitnami/mariadb:10.6
-    environment:
-      - MARIADB_USER=bn_joomla
-      - MARIADB_PASSWORD=bn_joomla
-      - MARIADB_DATABASE=bitnami_joomla
+  db:
+    image: mysql:8.0.19
+    restart: always
     volumes:
-      - 'mariadb_data:/bitnami/mariadb'
-  
-  joomla:
-    image: docker.io/bitnami/joomla:4
-    ports:
-      - '80:8080'
-      - '443:8443'
+      - db_data:/var/lib/mysql
+    restart: always
     environment:
-      - JOOMLA_DATABASE_HOST=mariadb
-      - JOOMLA_DATABASE_PORT_NUMBER=3306
-      - JOOMLA_DATABASE_USER=bn_joomla
-      - JOOMLA_DATABASE_NAME=bitnami_joomla
-      - JOOMLA_DATABASE_PASSWORD=bitnami_joomla
-    volumes:
-      - 'joomla_data:/bitnami/joomla'
+      - MYSQL_ROOT_PASSWORD=wordpress
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wordpress
+      - MYSQL_PASSWORD=wordpress
+  wordpress:
     depends_on:
-      - mariadb
+      - db
+    image: wordpress:latest
+    ports:
+      - 80:80
+    restart: always
+    environment:
+      - WORDPRESS_DB_HOST=db
+      - WORDPRESS_DB_USER=wordpress
+      - WORDPRESS_DB_PASSWORD=wordpress
+      - WORDPRESS_DB_NAME=wordpress
 volumes:
-  mariadb_data:
-    driver: local
-  joomla_data:
-    driver: local
+  db_data:  
